@@ -1,5 +1,5 @@
 # PLP1-History-and-Hello-World: Rust
-## History
+## Overview
 Name: **Rust**
 
 First appearing in 2010, Rust was designed by Graydon Hoare at Mozilla Research, with contributions from Dave Herman, Brendan Eich, and others.
@@ -28,4 +28,6 @@ Learning documents:
 - Blog: [educative.io](https://www.educative.io/blog/rust-tutorial-from-scratch)
 - Youtube: [dcode](https://www.youtube.com/watch?v=vOMJlQ5B-M0&list=PLVvjrrRCBy2JSHf9tGxGKJ-bYAN_uDCUL), [Traversy Media](https://www.youtube.com/watch?v=zF34dRivLOw),...
 
+
+## Setup
 ## 
