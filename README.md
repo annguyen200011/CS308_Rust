@@ -30,4 +30,8 @@ Learning documents:
 
 
 ## Setup
-## 
+
+Install the language: 
+1. Install [Visual Studio C++ Build tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) 
+2. Install [Rust](https://www.rust-lang.org/tools/install)
+3. Install [IDEA Intelliji](https://www.jetbrains.com/idea/) and start
