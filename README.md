@@ -32,7 +32,12 @@ Rust is a multi-paradigm, general-purpose programming language designed for perf
 
 ## Setup
 
-**Install the language:**
+**Main tool:**
+1. rustc: The complier which takes your Rust code and compiles it into binary (machine readable code)
+2. rustup: The command line utility to install and update Rust
+3. cargo: The Rust build system and package manager
+
+**How to install?**
 1. Install Programing Enviroment: [Visual Studio C++ Build tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) 
 2. Install [Rust](https://www.rust-lang.org/tools/install)
 3. Install [Intellij IDEA](https://www.jetbrains.com/idea/) and [Intellij Rust Plugin](https://www.jetbrains.com/rust/)
