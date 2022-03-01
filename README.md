@@ -21,7 +21,7 @@ Rust is a multi-paradigm, general-purpose programming language designed for perf
 
 **Learning documents:**
 - Main page: [Learn Rust](https://www.rust-lang.org/learn)
-- Book: [The Rust Programming Language](https://doc.rust-lang.org/book/) 
+- Book: [The Rust Programming Language](https://doc.rust-lang.org/book/), [The Rust Reference](https://doc.rust-lang.org/reference/introduction.html)
 - Tutorial: [tutorialspoint.com](https://www.tutorialspoint.com/rust/index.htm) 
 - Course: [Rustling course](https://github.com/rust-lang/rustlings/)
 - Example: [Rust by Example](https://doc.rust-lang.org/stable/rust-by-example/)
