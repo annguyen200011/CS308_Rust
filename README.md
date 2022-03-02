@@ -19,15 +19,34 @@ Rust is a multi-paradigm, general-purpose programming language designed for perf
 
 > Note: What I like most about rust programming language is its popularity in Dapps(Decentralize Applications) programming. I plan to program blockchain applications. 
 
-**Learning documents:**
-- Main page: [Learn Rust](https://www.rust-lang.org/learn)
-- Book: [The Rust Programming Language](https://doc.rust-lang.org/book/), [The Rust Reference](https://doc.rust-lang.org/reference/introduction.html)
-- Tutorial: [tutorialspoint.com](https://www.tutorialspoint.com/rust/index.htm) 
+**Learning sources:**
+- Pages: 
+  - Basic
+    - [The Rust Programming Language](https://doc.rust-lang.org/stable/book/)
+    - [The Cargo Book](https://doc.rust-lang.org/cargo/index.html)
+    - [Rust By Example](https://doc.rust-lang.org/rust-by-example/)
+  - Domain Specific
+    - [Command Line Applications in Rust](https://rust-cli.github.io/book/index.html)
+    - [Rust and WebAssembly](https://rustwasm.github.io/docs/book/#how-to-read-this-book)
+    - [The Embedded Rust Book](https://doc.rust-lang.org/stable/embedded-book/)
+    - [An Experimental Course on Operating Systems](https://cs140e.sergio.bz/)
+  - Advance
+    - [Crate std](https://doc.rust-lang.org/std/index.html)
+    - [The Rust Reference](https://doc.rust-lang.org/reference/index.html)
+    - [The Rust Unstable Book](https://doc.rust-lang.org/nightly/unstable-book/index.html)
+    - [The Rustonomicon](https://doc.rust-lang.org/nomicon/)
+    - [The Little Book of Rust Macros](https://veykril.github.io/tlborm/introduction.html)
+    - [A Guide to Porting C/C++ to Rust](https://locka99.gitbooks.io/a-guide-to-porting-c-to-rust/content/)
+    - [The Rust FFI Omnibus](https://jakegoulding.com/rust-ffi-omnibus/)
+    - [Lifetime Annotations](https://www.youtube.com/watch?v=rAl-9HwD858&list=PLqbS7AVVErFiWDOAVrPt7aYmnuuOLYvaO&t=0s)
+  - Hands On Practice
+    - https://github.com/rust-lang/rustlings
+    - https://exercism.org/tracks/rust/exercises
+    - https://github.com/rust-unofficial/awesome-rust
 - Course: [Rustling course](https://github.com/rust-lang/rustlings/)
-- Example: [Rust by Example](https://doc.rust-lang.org/stable/rust-by-example/)
 - Dapps Developers: [Ethereum](https://ethereum.org/en/developers/docs/programming-languages/rust/), [Solana](https://docs.solana.com/developing/on-chain-programs/developing-rust), [Polkadot](https://polkadot.network/technology/), [Near](https://docs.near.org/docs/develop/contracts/rust/intro),...
 - Blog: [educative.io](https://www.educative.io/blog/rust-tutorial-from-scratch)
-- Youtube: [dcode](https://www.youtube.com/watch?v=vOMJlQ5B-M0&list=PLVvjrrRCBy2JSHf9tGxGKJ-bYAN_uDCUL), [Traversy Media](https://www.youtube.com/watch?v=zF34dRivLOw), [Blockchain cùng Vũ](https://www.youtube.com/watch?v=k9dM0SiX9iU&list=PLFnEYduGTiXE2ejxmzTIraP2feI-pmeuw),...
+- Youtube: [dcode](https://www.youtube.com/watch?v=vOMJlQ5B-M0&list=PLVvjrrRCBy2JSHf9tGxGKJ-bYAN_uDCUL), [Traversy Media](https://www.youtube.com/watch?v=zF34dRivLOw), [Blockchain cùng Vũ](https://www.youtube.com/watch?v=k9dM0SiX9iU&list=PLFnEYduGTiXE2ejxmzTIraP2feI-pmeuw), [Jon Gjenset](https://www.youtube.com/channel/UC_iD0xppBwwsrM9DegC5cQQ), 
 
 
 ## Setup
