@@ -73,21 +73,38 @@ Rust is a multi-paradigm, general-purpose programming language designed for perf
 
 **Comments:**
 
-**Non-doc comments**
->Comments in Rust code follow the general C++ style of line (//) and block (/* ... */) comment forms. Nested block comments are supported.
+Single-Line comment
 
->Non-doc comments are interpreted as a form of whitespace.
-
-**Doc comments**
->Line doc comments beginning with exactly three slashes (///), and block doc comments (/** ... */), both inner doc comments, are interpreted as a special syntax for doc attributes. That is, they are equivalent to writing #[doc="..."] around the body of the comment, i.e., /// Foo turns into #[doc="Foo"] and /** Bar */ turns into #[doc="Bar"].
-
->Line comments beginning with //! and block comments /*! ... */ are doc comments that apply to the parent of the comment, rather than the item that follows. That is, they are equivalent to writing #![doc="..."] around the body of the comment. //! comments are usually used to document modules that occupy a source file.
-
->Isolated CRs (\r), i.e. not followed by LF (\n), are not allowed in doc comments.
-
+```rust
+fn main() {
+   // single line comment
+   // println!("also a comment");
+   println!("Hello, world!");
+}
+```
+Multi-Line comment
+```rust
+fn main() {
+   /*
+      a
+      multi
+      line
+      comment
+   */
+   println!("Hello, world!");
+}
+```
+Doc comments
+```rust
+/// This function returns the greeting; Hello, world!
+pub fn hello() -> String {
+   ("Hello, world!").to_string()
+}
+```
 **Reference:**
 1. https://en.wikipedia.org/wiki/Rust_(programming_language)
 2. https://www.rust-lang.org/
 3. https://www.rust-lang.org/tools/install
 4. https://plugins.jetbrains.com/plugin/8182-rust/docs/rust-quick-start.html
 5. https://doc.rust-lang.org/reference/comments.html
+6. https://www.youtube.com/watch?v=NufU_fRpStA
