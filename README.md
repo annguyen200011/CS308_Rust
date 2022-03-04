@@ -1,4 +1,4 @@
-# PLP1-History-and-Hello-World: Rust
+# History-and-Hello-World: Rust
 ![image](https://user-images.githubusercontent.com/88206341/154418337-aacad72f-c7ce-43d3-b39f-9a8a8f3c083d.png)
 ## Overview
 Name: **Rust**
