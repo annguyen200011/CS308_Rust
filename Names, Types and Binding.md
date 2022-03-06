@@ -451,8 +451,145 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 The program resulted in a runtime error at the point of using an invalid value in the indexing operation. The program exited with an error message and didn’t execute the final println! statement. When you attempt to access an element using indexing, Rust will check that the index you’ve specified is less than the array length. If the index is greater than or equal to the length, Rust will panic. This check has to happen at runtime, especially in this case, because the compiler can’t possibly know what value a user will enter when they run the code later.
 ## 5. Coding examples
 
+### 5.1. Limitations
+
+>“Rust needs to know how much memory to allocate for any value of a particular type, and all values of a type must use the same amount of memory.”
+
+> Rust is very strict when it comes to polymorphic types. As you’ve seen, there are ways to achieve it, but they don’t feel as straightforward as with other dynamic languages such as Ruby or Python. Sometimes though it’s useful to make one step back and look at the actual problem we’re trying to solve.
+
+#### 5.1.1. How to add integer and float in rust?
+
+```rust
+fn main(){
+    let x:f32=20.0;        
+    let y:i32=10;
+    let sum = x + y as f32;
+    println!("{}",sum);
+}
+```
+
+#### 5.1.2. How to store different types?
+
+1. Using Vector
+```rust
+enum Thing {
+    Op(Operator),
+    Number(i32),
+}
+
+fn main() {
+    let mut output: Vec<Thing> = Vec::new();
+    let a = 2;
+    let b = Operator::Add;
+    let c = 3;
+    output.push(Thing::Number(a));
+    output.push(Thing::Op(b));
+    output.push(Thing::Number(c));
+}
+```
+
+2. Using Hashmap
+```rust
+use std::collections::HashMap;
+
+enum Value {
+    Str(&'static str),
+    Int(i32),
+}
+
+fn main() {
+    let mut map = HashMap::new();
+
+    map.insert("a", Value::Str("1"));
+    map.insert("b", Value::Int(2));
+
+    for (key, value) in &map {
+        println!("{}: {:?}", key, value);
+    }
+}
+```
+
+#### 5.1.3. How to convert between data types?
+
+1. as
+```rust
+fn main() {
+  let num:u8 = 10;
+  let multiplied = times_ten(num as f32);
+
+  println!("{}", multiplied); // 100
+}
+
+fn times_ten(val: f32) -> f32 {
+  val * 10.0
+} 
+```
+2. From
+
+From in Rust is one of two traits for type conversion
+```rust
+struct MySpecialNumber(u32);
+
+impl From<u32> for MySpecialNumber {
+  fn from(num: u32) -> Self {
+    MySpecialNumber(num)
+  }
+}
+
+fn main() {
+  let existing_var = 30;
+  let num = MySpecialNumber::from(existing_var);
+  println!("{:?}", num); // Prints -> MySpecialNumber(30)
+}
+```
+3. Into
+- First way to use Into
+  ```rust
+  fn main() {
+    let existing_var: u32 = 30;
+    let num: MySpecialNumber = existing_var.into();
+    println!("{:?}", num); // Prints -> MySpecialNumber(30)
+  }
+  ```
+  Arguably this was is more readable. The `existing_var` is being converted to `MySpecialNumber` because it has been added as a type annotation. If that get's removed Rust won't know what type to convert the existing variable to.
+
+
+- Second way to use Into
+  
+  For this way we're going back to my `times_ten` function I used above when desiring the as keyword.
+  ```rust
+  fn main() {
+    let num:u8 = 10;
+    let multiplied = times_ten(num as f32);
+  
+    println!("{}", multiplied); // 100
+    }
+  
+  fn times_ten(val: f32) -> f32 {
+  val * 10.0
+  }
+  ```
+  Instead of using as we can use the Into trait like so:
+  
+  ```rust
+  fn main() {
+    let num:u8 = 10;
+    let multiplied = times_ten(num);
+  
+    println!("{}", multiplied); // 100
+  }
+  
+  fn times_ten<T: Into<f32>>(val: T) -> f32 { 
+    val.into() * 10.0 
+  }
+  ```
+  So if you compare the last two code snippets, you'll see we can omit the as keyword and the type to convert to and move that logic to the `times_ten function` in the form of a generic data type `T` and the `Into` trait.
+
+  No matter what type the argument is that is passed into the `times_ten function` it will always be converted fo an `f32` before it is multiplied by `10`.
 ## Reference
 - https://doc.rust-lang.org/stable/book/appendix-01-keywords.html
 - https://rust-lang.github.io/api-guidelines/naming.html
 - https://www.tutorialspoint.com/rust/rust_string.htm
+- https://www.simonewebdesign.it/rust-hashmap-insert-values-multiple-types/
+- https://dev.to/richardbray/type-conversion-in-rust-as-from-and-into-493l
 - https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/reference/introduction.html
