@@ -14,6 +14,10 @@
     - [4.1.2. Floating-Point Types](#412-floating-point-types)
     - [4.1.3. Numeric Operations](#413-numeric-operations)
     - [4.1.4. The Boolean Type](#414-the-boolean-type)
+    - [4.1.5. The Character Type](#415-the-character-type)
+    - [4.1.6. String Type](#416-string-type)
+      - [4.1.6.1. String Literal(&str)](#4161-string-literalstr)
+      - [4.1.6.2. String Object(String)](#4162-string-objectstring)
   - [4.2. Compound Types](#42-compound-types)
     - [4.2.1. The Tuple Type](#421-the-tuple-type)
     - [4.2.2. The Array Type](#422-the-array-type)
@@ -243,6 +247,76 @@ fn main() {
 }
 ```
 
+#### 4.1.5. The Character Type
+Rust’s char type is the language’s most primitive alphabetic type. Here’s some examples of declaring char values:
+
+```rust
+fn main() {
+    let c = 'z';
+    let z = 'ℤ';
+    let heart_eyed_cat = '😻';
+}
+```
+Note that we specify `char` literals with single quotes, as opposed to string literals, which use double quotes. Rust’s `char` type is four bytes in size and represents a Unicode Scalar Value, which means it can represent a lot more than just ASCII. Accented letters; Chinese, Japanese, and Korean characters; emoji; and zero-width spaces are all valid `char` values in Rust. Unicode Scalar Values range from `U+0000` to `U+D7FF` and `U+E000` to `U+10FFFF` inclusive. However, a “character” isn’t really a concept in Unicode, so your human intuition for what a “character” is may not match up with what a `char` is in Rust.
+
+#### 4.1.6. String Type
+
+The String data type in Rust can be classified into the following
+- String Literal(`&str`)
+- String Object(`String`)
+
+##### 4.1.6.1. String Literal(&str)
+`&str` is a slice (`&[u8]`) that always points to a valid UTF-8 sequence, and can be used to view into a `String`, just like `&[T]` is a view into `Vec<T>`.
+
+String literals (`&str`) are used when the value of a string is known at compile time. String literals are a set of characters, which are hardcoded into a variable. For example, `let company="Tutorials Point"`. String literals are found in module std::str. String literals are also known as string slices.
+
+String literals are static by default. This means that string literals are guaranteed to be valid for the duration of the entire program.
+
+```rust
+fn main() {
+   let company:&'static str = "TutorialsPoint";
+   let location:&'static str = "Hyderabad";
+   println!("company is : {} location :{}",company,location);
+}
+```
+
+>company is : TutorialsPoint location :Hyderabad
+
+##### 4.1.6.2. String Object(String)
+A `String` is stored as a vector of bytes (`Vec<u8`>), but guaranteed to always be a valid UTF-8 sequence. `String` is heap allocated, growable and not null terminated.
+
+The String object type is provided in Standard Library. Unlike string literal, the string object type is not a part of the core language. It is defined as public structure in standard library pub struct String. String is a growable collection. It is mutable and UTF-8 encoded type. The String object type can be used to represent string values that are provided at runtime. String object is allocated in the heap.
+
+
+```rust
+fn main(){
+   let empty_string = String::new();
+   println!("length is {}",empty_string.len()); // creates an empty string
+
+   let content_string = String::from("TutorialsPoint");
+   println!("length is {}",content_string.len()); //creates a string with some default value passed as parameter to the from() method
+}
+```
+>length is 0
+> 
+>length is 14
+
+**Common Methods - String Object**
+
+| Sr.No.| Method  | Signature | Description |
+|------ |---------| --------- |-------------| 
+| 1	| new() | pub const fn new() → String | Creates a new empty String.| 
+| 2	| to_string() | fn to_string(&self) → String | Converts the given value to a String. | 
+| 3	| replace()	 | pub fn replace<'a, P>(&'a self, from: P, to: &str) → String| Replaces all matches of a pattern with another string.| 
+| 4	| as_str() | pub fn as_str(&self) → &str | Extracts a string slice containing the entire string.| 
+| 5	| push() | pub fn push(&mut self, ch: char)	| Appends the given char to the end of this String. | 
+| 6	| push_str() | pub fn push_str(&mut self, string: &str)	| Appends a given string slice onto the end of this String.| 
+| 7	| len() | pub fn len(&self) → usize	| Returns the length of this String, in bytes. |                                                                                                                                                                          
+| 8	| trim() | pub fn trim(&self) → &str | Returns a string slice with leading and trailing whitespace removed. |                                                                                                                                                 
+| 9	| split_whitespace() | pub fn split_whitespace(&self) → SplitWhitespace	| Splits a string slice by whitespace and returns an iterator. |                                                                                                                      
+| 10	| split() | pub fn split<'a, P>(&'a self, pat: P) → Split<'a, P> , where P is pattern can be &str, char, or a closure that determines the split. | Returns an iterator over substrings of this string slice, separated by characters matched by a pattern.|  
+| 11	| chars() | pub fn chars(&self) → Chars	| Returns an iterator over the chars of a string slice. |                                                                                                                                                             
+
 ### 4.2. Compound Types
 Compound types can group multiple values into one type. Rust has two primitive compound types: tuples and arrays.
 
@@ -380,4 +454,5 @@ The program resulted in a runtime error at the point of using an invalid value i
 ## Reference
 - https://doc.rust-lang.org/stable/book/appendix-01-keywords.html
 - https://rust-lang.github.io/api-guidelines/naming.html
+- https://www.tutorialspoint.com/rust/rust_string.htm
 - https://web.mit.edu/rust-lang_v1.25/arch/amd64_ubuntu1404/share/doc/rust/html/reference/introduction.html
