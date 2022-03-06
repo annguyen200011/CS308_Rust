@@ -24,6 +24,11 @@
       - [4.2.2.1. Accessing Array Elements](#4221-accessing-array-elements)
       - [4.2.2.2. Invalid Array Element Access](#4222-invalid-array-element-access)
 - [5. Coding examples](#5-coding-examples)
+  - [5.1. Limitations](#51-limitations)
+    - [5.1.1. How to add integer and float in rust?](#511-how-to-add-integer-and-float-in-rust)
+    - [5.1.2. How to store different types?](#512-how-to-store-different-types)
+    - [5.1.3. How to convert between data types?](#513-how-to-convert-between-data-types)
+  - [5.2. Built-in complex data types](#52-built-in-complex-data-types)
 - [Reference](#reference)
 
 ## 1. Keywords & Reserved Words
@@ -586,6 +591,76 @@ fn main() {
   So if you compare the last two code snippets, you'll see we can omit the as keyword and the type to convert to and move that logic to the `times_ten function` in the form of a generic data type `T` and the `Into` trait.
 
   No matter what type the argument is that is passed into the `times_ten function` it will always be converted fo an `f32` before it is multiplied by `10`.
+
+### 5.2. Built-in complex data types
+More detail: [4. Data Types](#4-data-types)
+
+```rust
+fn main(){
+	// BOOL
+	let t = true;
+
+	// CHAR
+	let a = 'a'; 
+	let keyboard = '⌨'; 
+
+	// INTEGERS
+	let x = 5; // i32 by default
+	let y: u64 = 293402358; // 64-bit unsigned integer (explicit declaration)
+
+	// FLOATING POINT NUMBERS
+	let pi = 3.14159265358; // f64 by default
+
+	// ARRAYS
+	let fruits: [&str; 4] = ["Strawberry", "Banana", "Mango", "Watermelon"]; // Array
+	println!("The first element of the array is: {}", fruits[0]);
+
+	let mut counter = 0;
+	for elem in fruits.iter(){
+	    println!("The element at index {} is {}", counter, elem);
+	    counter += 1;
+	}
+
+	// STR
+	let str_slice = "Hello! I'm a str";
+
+	println!("The value of our str is: {}", str_slice);
+
+	// TUPLE
+	let tuple = ("hello", 42, "world", [3,6,9]);
+
+	println!("First element is {}", tuple.0);
+	println!("Second element is {}", tuple.1);
+	println!("Third element is {}", tuple.2);
+	let mut counter = 0;
+	for elem in &tuple.3 {
+	    println!("Element {} of the fourth element is {}", counter, elem);
+	    counter += 1;
+	}
+}
+```
+
+> The first element of the array is: Strawberry
+> 
+> The element at index 0 is Strawberry
+>
+> The element at index 1 is Banana
+> 
+> The element at index 2 is Mango
+> 
+> The element at index 3 is Watermelon
+> 
+> elem is Strawberry
+> 
+> elem is Banana
+> 
+> The value of our str is: Hello! I'm a str
+> 
+> First element is hello
+> 
+> Second element is 42
+> 
+> Third element is world
 ## Reference
 - https://doc.rust-lang.org/stable/book/appendix-01-keywords.html
 - https://rust-lang.github.io/api-guidelines/naming.html
