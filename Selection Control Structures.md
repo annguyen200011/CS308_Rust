@@ -4,9 +4,15 @@
 
 - [1. Boolean Value](#1-boolean-value)
 - [2. Conditional Statements](#2-conditional-statements)
+  - [2.1. if expresssion](#21-if-expresssion)
+  - [2.2. if let expressions](#22-if-let-expressions)
 - [3. Short-circuit Evaluation](#3-short-circuit-evaluation)
 - [4. "Dangling else” Problem](#4-dangling-else-problem)
-- [5. switch or case statements; break; continue]()
+- [5. match, break, continue](#5-match-break-continue)
+  - [5.1. match expressions](#51-match-expressions)
+  - [5.2. Loop labels](#52-loop-labels)
+  - [5.3. break](#53-break)
+  - [5.4. continue](#54-continue)
 
 ## 1. Boolean Value
 
@@ -97,82 +103,8 @@ let number = 5;
         }
     }
 ```
-### 2.2. match expressions
->Syntax
 
->*MatchExpression* :
->
->`match` *Scrutinee* `{`
-> 
->[*InnerAttribute*](https://doc.rust-lang.org/reference/attributes.html)*
-> 
->MatchArms<sup>?</sup>
-> 
->`}`
-
->*Scrutinee* :
->
->[*Expression*](https://doc.rust-lang.org/reference/expressions.html) <sub>except struct expression</sub>
-
->*MatchArms* :
->
->( *MatchArm* `=>` ( [*ExpressionWithoutBlock*](https://doc.rust-lang.org/reference/expressions.html) `,` | [*ExpressionWithBlock*](https://doc.rust-lang.org/reference/expressions.html) `,`<sup>?</sup> ) )*
->
->*MatchArm* `=>` [*Expression*](https://doc.rust-lang.org/reference/expressions.html) `,`<sup>?</sup>
-
->*MatchArm* :
-> 
->[*OuterAttribute*](https://doc.rust-lang.org/reference/attributes.html)* [*Pattern*](https://doc.rust-lang.org/reference/patterns.html) MatchArmGuard?
-
->MatchArmGuard :
->
->`if` [Expression](https://doc.rust-lang.org/reference/expressions.html)
-
-A `match` expression branches on a *pattern*. The exact form of matching that occurs depends on the *pattern*. A `match` expression has a *scrutinee expression*, which is the value to compare to the *patterns*. The *scrutinee expression* and the *patterns* must have the *same type*.
-
-A `match` behaves differently depending on whether or not the scrutinee expression is a *place expression* or *value expression*. 
-- If the *scrutinee expression* is a *value expression*, it is first evaluated into a temporary location, and the resulting value is *sequentially compared* to the *patterns* in the arms until a match is found. The first arm with a matching pattern is chosen as the branch target of the `match`, any variables bound by the pattern are assigned to local variables in the arm's block, and control enters the block.
-
-- When the *scrutinee expression* is a *place expression*, the match *does not allocate* a temporary location; however, a by-value binding may copy or move from the memory location. When possible, it is preferable to match on place expressions, as the lifetime of these matches inherits the lifetime of the place expression rather than being restricted to the inside of the match.
-
-An example of a match expression:
-
-```rust
-let x = 1;
-
-match x {
-    1 => println!("one"),
-    2 => println!("two"),
-    3 => println!("three"),
-    4 => println!("four"),
-    5 => println!("five"),
-    _ => println!("something else"),
-}
-```
-Variables bound within the pattern are scoped to the match guard and the arm's expression. The [binding mode](https://doc.rust-lang.org/reference/patterns.html#binding-modes) (move, copy, or reference) depends on the pattern.
-
-Multiple match patterns may be joined with the `|` operator. Each pattern will be tested in *left-to-right* sequence until a successful match is found.
-
-```rust
-let x = 9;
-let message = match x {
-0 | 1  => "not many",
-2 ..= 9 => "a few",
-_      => "lots"
-};
-
-assert_eq!(message, "a few");
-
-// Demonstration of pattern match order.
-struct S(i32, i32);
-
-match S(1, 2) {
-S(z @ 1, _) | S(_, z @ 2) => assert_eq!(z, 1),
-_ => panic!(),
-}
-```
-
-### 2.3. if let expressions
+### 2.2. if let expressions
 
 >Syntax
 >
@@ -271,9 +203,198 @@ match EXPR {
 ```
 
 
-
-
-
 ## 3. Short-circuit Evaluation
+> _Lazy boolean operators_
+>
+>  _Expression_ `||` _Expression_
+>
+>| _Expression_ `&&` _Expression_
+
+The operators `||` and `&&` may be applied to operands of boolean type. The `||` operator denotes logical 'or', and the `&&` operator denotes logical 'and'. They differ from `|` and `&` in that the right-hand operand is only evaluated when the left-hand operand does not already determine the result of the expression. That is, `||` only evaluates its right-hand operand when the left-hand operand evaluates to `false`, and `&&` only when it evaluates to `true`.
+
+```rust
+let x = false || true; // true
+let y = false && panic!(); // false, doesn't evaluate `panic!()`
+```
 
 ## 4. "Dangling else” Problem
+Prohibit this potential ambiguity by:
+- Requiring braces for all blocks, and 
+- Providing special "else if" syntax
+
+## 5. match, break, continue
+
+### 5.1. match expressions
+>Syntax
+
+>*MatchExpression* :
+>
+>`match` *Scrutinee* `{`
+>
+>[*InnerAttribute*](https://doc.rust-lang.org/reference/attributes.html)*
+>
+>MatchArms<sup>?</sup>
+>
+>`}`
+
+>*Scrutinee* :
+>
+>[*Expression*](https://doc.rust-lang.org/reference/expressions.html) <sub>except struct expression</sub>
+
+>*MatchArms* :
+>
+>( *MatchArm* `=>` ( [*ExpressionWithoutBlock*](https://doc.rust-lang.org/reference/expressions.html) `,` | [*ExpressionWithBlock*](https://doc.rust-lang.org/reference/expressions.html) `,`<sup>?</sup> ) )*
+>
+>*MatchArm* `=>` [*Expression*](https://doc.rust-lang.org/reference/expressions.html) `,`<sup>?</sup>
+
+>*MatchArm* :
+>
+>[*OuterAttribute*](https://doc.rust-lang.org/reference/attributes.html)* [*Pattern*](https://doc.rust-lang.org/reference/patterns.html) MatchArmGuard?
+
+>MatchArmGuard :
+>
+>`if` [Expression](https://doc.rust-lang.org/reference/expressions.html)
+
+A `match` expression branches on a *pattern*. The exact form of matching that occurs depends on the *pattern*. A `match` expression has a *scrutinee expression*, which is the value to compare to the *patterns*. The *scrutinee expression* and the *patterns* must have the *same type*.
+
+A `match` behaves differently depending on whether or not the scrutinee expression is a *place expression* or *value expression*.
+- If the *scrutinee expression* is a *value expression*, it is first evaluated into a temporary location, and the resulting value is *sequentially compared* to the *patterns* in the arms until a match is found. The first arm with a matching pattern is chosen as the branch target of the `match`, any variables bound by the pattern are assigned to local variables in the arm's block, and control enters the block.
+
+- When the *scrutinee expression* is a *place expression*, the match *does not allocate* a temporary location; however, a by-value binding may copy or move from the memory location. When possible, it is preferable to match on place expressions, as the lifetime of these matches inherits the lifetime of the place expression rather than being restricted to the inside of the match.
+
+An example of a match expression:
+
+```rust
+let x = 1;
+
+match x {
+    1 => println!("one"),
+    2 => println!("two"),
+    3 => println!("three"),
+    4 => println!("four"),
+    5 => println!("five"),
+    _ => println!("something else"),
+}
+```
+Variables bound within the pattern are scoped to the match guard and the arm's expression. The [binding mode](https://doc.rust-lang.org/reference/patterns.html#binding-modes) (move, copy, or reference) depends on the pattern.
+
+Multiple match patterns may be joined with the `|` operator. Each pattern will be tested in *left-to-right* sequence until a successful match is found.
+
+```rust
+let x = 9;
+let message = match x {
+0 | 1  => "not many",
+2 ..= 9 => "a few",
+_      => "lots"
+};
+
+assert_eq!(message, "a few");
+
+// Demonstration of pattern match order.
+struct S(i32, i32);
+
+match S(1, 2) {
+S(z @ 1, _) | S(_, z @ 2) => assert_eq!(z, 1),
+_ => panic!(),
+}
+```
+
+### 5.2. Loop labels
+>Syntax
+> 
+>_LoopLabel_ :
+> 
+>[LIFETIME_OR_LABEL](https://doc.rust-lang.org/reference/tokens.html#lifetimes-and-loop-labels) `:`
+
+A loop expression may optionally have a label. The label is written as a lifetime preceding the loop expression, as in `'foo: loop { break 'foo; }`, `'bar: while false {}`, `'humbug: for _ in 0..0 {}`. If a label is present, then labeled break and continue expressions nested within this loop may exit out of this loop or return control to its head. See [break expressions](#53-break) and [continue expressions](#54-continue).
+### 5.3. break
+Exit early from a loop.
+
+When `break` is encountered, execution of the associated loop body is immediately terminated.
+
+```rust
+let mut last = 0;
+
+for x in 1..100 {
+    if x > 12 {
+        break;
+    }
+    last = x;
+}
+
+assert_eq!(last, 12);
+println!("{}", last); //print 12
+```
+
+A break expression is normally associated with the innermost loop enclosing the `break` but a label can be used to specify which enclosing loop is affected.
+
+```rust
+ 'outer: for i in 1..=5 {
+     println!("outer iteration (i): {}", i);
+
+     '_inner: for j in 1..=200 {
+         println!("    inner iteration (j): {}", j);
+         if j >= 3 {
+             // breaks from inner loop, lets outer loop continue.
+             break;
+         }
+         if i >= 2 {
+             // breaks from outer loop, and directly to "Bye".
+             break 'outer;
+         }
+     }
+ }
+ println!("Bye.");
+```
+
+When associated with `loop`, a break expression may be used to return a value from that loop. This is only valid with loop and not with any other type of loop. If no value is specified, `break;` returns `()`. Every `break` within a loop must return the same type.
+
+```rust
+let (mut a, mut b) = (1, 1);
+let result = loop {
+    if b > 10 {
+        break b;
+    }
+    let c = a + b;
+    a = b;
+    b = c;
+};
+// first number in Fibonacci sequence over 10:
+assert_eq!(result, 13);
+println!("{}", result);
+```
+
+### 5.4. continue
+Skip to the next iteration of a loop.
+
+When `continue` is encountered, the current iteration is terminated, returning control to the loop head, typically continuing with the next iteration.
+
+```rust
+ // Printing odd numbers by skipping even ones
+ for number in 1..=10 {
+     if number % 2 == 0 {
+         continue;
+     }
+     println!("{}", number);
+ }
+//print 1 3 5 7 9
+```
+
+Like `break`, `continue` is normally associated with the innermost enclosing loop, but labels may be used to specify the affected loop.
+
+```rust
+// Print Odd numbers under 30 with unit <= 5
+ 'tens: for ten in 0..3 {
+     '_units: for unit in 0..=9 {
+         if unit % 2 == 0 {
+             continue;
+         }
+         if unit > 5 {
+             continue 'tens;
+         }
+         println!("{}", ten * 10 + unit);
+     }
+ }
+// print 1 3 5 11 13 15 21 23 25
+// unit just get 1 3 5, if unit > 5, continue to _tens
+```
