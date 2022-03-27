@@ -13,6 +13,7 @@
   - [5.2. Loop labels](#52-loop-labels)
   - [5.3. break](#53-break)
   - [5.4. continue](#54-continue)
+- [Reference](#reference)
 
 ## 1. Boolean Value
 
@@ -398,3 +399,11 @@ Like `break`, `continue` is normally associated with the innermost enclosing loo
 // print 1 3 5 11 13 15 21 23 25
 // unit just get 1 3 5, if unit > 5, continue to _tens
 ```
+
+### Reference
+- https://doc.rust-lang.org/std/primitive.bool.html
+- https://doc.rust-lang.org/reference/expressions/if-expr.html
+- https://doc.rust-lang.org/reference/expressions/match-expr.html
+- https://stackoverflow.com/questions/967511/how-do-different-languages-handle-the-dangling-else
+- https://doc.rust-lang.org/stable/std/keyword.break.html
+- https://doc.rust-lang.org/std/keyword.continue.html
