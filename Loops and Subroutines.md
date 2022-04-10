@@ -8,11 +8,23 @@
      - [1.1.2. Returning from loops](#112-returning-from-loops)
    - [1.2. while](#12-while)
    - [1.3. for](#13-for)
-     - [1.3.1. for and range]()
-     - [1.3.2. for and iterators]()
-- [2. Function]()
-   - 2.1. Syntax
-   - 2.2. Rules
+     - [1.3.1. for and range](#131-for-and-range)
+     - [1.3.2. for and iterators](#132-for-and-iterators)
+     - [1.3.3. Range expression](#133-range-expression)
+- [2. Function](#2-function)
+   - [2.1. Syntax](#21-syntax)
+   - [2.2. Methods](#22-methods)
+   - [2.3. Closures](#23-closures)
+     - [2.3.1. Capturing]()
+     - [2.3.2. As input parameters]()
+     - [2.3.3. Type anonymity]()
+     - [2.3.4. Input functions]()
+     - [2.3.5. As output parameters]()
+     - [2.3.6. Examples in std]()
+       - 2.3.6.1. Iterator::any
+       - 2.3.6.2. Searching through iterators
+   - [2.4. Higher Order Functions]()
+   - [2.5. Diverging functions]()
 - [3. Recursion]()
 - [4. Multiple Parameters]()
 - [5. Return]() 
@@ -246,3 +258,577 @@ fn main() {
 | RangeToInclusiveExpr	| `..=`end	| std::ops::RangeToInclusive | 	x ≤ end                              |
 
 
+## 2. Function
+
+### 2.1. Syntax
+Functions are declared using the `fn` keyword. Its arguments are type annotated, just like variables, and, if the function returns a value, the return type must be specified after an arrow `->`.
+
+The final expression in the function will be used as `return` value. Alternatively, the return statement can be used to return a value earlier from within the function, even from inside loops or `if` statements.
+
+```rust
+// Unlike C/C++, there's no restriction on the order of function definitions
+fn main() {
+    // We can use this function here, and define it somewhere later
+    fizzbuzz_to(100);
+}
+
+// Function that returns a boolean value
+fn is_divisible_by(lhs: u32, rhs: u32) -> bool {
+    // Corner case, early return
+    if rhs == 0 {
+        return false;
+    }
+
+    // This is an expression, the `return` keyword is not necessary here
+    lhs % rhs == 0
+}
+
+
+// Functions that "don't" return a value, actually return the unit type `()`
+fn fizzbuzz(n: u32) -> () {
+    if is_divisible_by(n, 15) {
+        println!("fizzbuzz");
+    } else if is_divisible_by(n, 3) {
+        println!("fizz");
+    } else if is_divisible_by(n, 5) {
+        println!("buzz");
+    } else {
+        println!("{}", n);
+    }
+}
+
+// When a function returns `()`, the return type can be omitted from the
+// signature
+fn fizzbuzz_to(n: u32) {
+    for n in 1..=n {
+        fizzbuzz(n);
+    }
+}
+```
+
+### 2.2. Methods
+
+Some functions are connected to a particular type. These come in two forms: associated functions, and methods. Associated functions are functions that are defined on a type generally, while methods are associated functions that are called on a particular instance of a type.
+
+```rust
+struct Point {
+    x: f64,
+    y: f64,
+}
+
+// Implementation block, all `Point` associated functions & methods go in here
+impl Point {
+    // This is an "associated function" because this function is associated with
+    // a particular type, that is, Point.
+    //
+    // Associated functions don't need to be called with an instance.
+    // These functions are generally used like constructors.
+    fn origin() -> Point {
+        Point { x: 0.0, y: 0.0 }
+    }
+
+    // Another associated function, taking two arguments:
+    fn new(x: f64, y: f64) -> Point {
+        Point { x: x, y: y }
+    }
+}
+
+struct Rectangle {
+    p1: Point,
+    p2: Point,
+}
+
+impl Rectangle {
+    // This is a method
+    // `&self` is sugar for `self: &Self`, where `Self` is the type of the
+    // caller object. In this case `Self` = `Rectangle`
+    fn area(&self) -> f64 {
+        // `self` gives access to the struct fields via the dot operator
+        let Point { x: x1, y: y1 } = self.p1;
+        let Point { x: x2, y: y2 } = self.p2;
+
+        // `abs` is a `f64` method that returns the absolute value of the
+        // caller
+        ((x1 - x2) * (y1 - y2)).abs()
+    }
+
+    fn perimeter(&self) -> f64 {
+        let Point { x: x1, y: y1 } = self.p1;
+        let Point { x: x2, y: y2 } = self.p2;
+
+        2.0 * ((x1 - x2).abs() + (y1 - y2).abs())
+    }
+
+    // This method requires the caller object to be mutable
+    // `&mut self` desugars to `self: &mut Self`
+    fn translate(&mut self, x: f64, y: f64) {
+        self.p1.x += x;
+        self.p2.x += x;
+
+        self.p1.y += y;
+        self.p2.y += y;
+    }
+}
+
+// `Pair` owns resources: two heap allocated integers
+struct Pair(Box<i32>, Box<i32>);
+
+impl Pair {
+    // This method "consumes" the resources of the caller object
+    // `self` desugars to `self: Self`
+    fn destroy(self) {
+        // Destructure `self`
+        let Pair(first, second) = self;
+
+        println!("Destroying Pair({}, {})", first, second);
+
+        // `first` and `second` go out of scope and get freed
+    }
+}
+
+fn main() {
+    let rectangle = Rectangle {
+        // Associated functions are called using double colons
+        p1: Point::origin(),
+        p2: Point::new(3.0, 4.0),
+    };
+
+    // Methods are called using the dot operator
+    // Note that the first argument `&self` is implicitly passed, i.e.
+    // `rectangle.perimeter()` === `Rectangle::perimeter(&rectangle)`
+    println!("Rectangle perimeter: {}", rectangle.perimeter());
+    println!("Rectangle area: {}", rectangle.area());
+
+    let mut square = Rectangle {
+        p1: Point::origin(),
+        p2: Point::new(1.0, 1.0),
+    };
+
+    // Error! `rectangle` is immutable, but this method requires a mutable
+    // object
+    //rectangle.translate(1.0, 0.0);
+    // TODO ^ Try uncommenting this line
+
+    // Okay! Mutable objects can call mutable methods
+    square.translate(1.0, 1.0);
+
+    let pair = Pair(Box::new(1), Box::new(2));
+
+    pair.destroy();
+
+    // Error! Previous `destroy` call "consumed" `pair`
+    //pair.destroy();
+    // TODO ^ Try uncommenting this line
+}
+```
+
+### 2.3. Closures
+
+Closures are functions that can capture the enclosing environment. For example, a closure that captures the x variable:
+
+```rust
+|val| val + x
+```
+
+The syntax and capabilities of closures make them very convenient for on the fly usage. Calling a closure is exactly like calling a function. However, both input and return types can be inferred and input variable names must be specified.
+
+Other characteristics of closures include:
+
+- using `||` instead of `()` around input variables.
+- optional body delimination (`{}`) for a single expression (mandatory otherwise).
+- the ability to capture the outer environment variables.
+
+```rust
+fn main() {
+    // Increment via closures and functions.
+    fn function(i: i32) -> i32 { i + 1 }
+
+    // Closures are anonymous, here we are binding them to references
+    // Annotation is identical to function annotation but is optional
+    // as are the `{}` wrapping the body. These nameless functions
+    // are assigned to appropriately named variables.
+    let closure_annotated = |i: i32| -> i32 { i + 1 };
+    let closure_inferred  = |i     |          i + 1  ;
+
+    let i = 1;
+    // Call the function and closures.
+    println!("function: {}", function(i));
+    println!("closure_annotated: {}", closure_annotated(i));
+    println!("closure_inferred: {}", closure_inferred(i));
+
+    // A closure taking no arguments which returns an `i32`.
+    // The return type is inferred.
+    let one = || 1;
+    println!("closure returning one: {}", one());
+
+}
+
+/* print: 
+function: 2
+closure_annotated: 2
+closure_inferred: 2
+closure returning one: 1 
+ */
+```
+
+#### 2.3.1. Capturing
+
+Closures are inherently flexible and will do what the functionality requires to make the closure work without annotation. This allows capturing to flexibly adapt to the use case, sometimes moving and sometimes borrowing. Closures can capture variables:
+
+- **by reference:** `&T`
+- **by mutable reference:** `&mut T`
+- **by value:** `T`
+
+They preferentially capture variables by reference and only go lower when required.
+
+```rust
+fn main() {
+    use std::mem;
+
+    let color = String::from("green");
+
+    // A closure to print `color` which immediately borrows (`&`) `color` and
+    // stores the borrow and closure in the `print` variable. It will remain
+    // borrowed until `print` is used the last time. 
+    //
+    // `println!` only requires arguments by immutable reference so it doesn't
+    // impose anything more restrictive.
+    let print = || println!("`color`: {}", color);
+
+    // Call the closure using the borrow.
+    print();
+
+    // `color` can be borrowed immutably again, because the closure only holds
+    // an immutable reference to `color`. 
+    let _reborrow = &color;
+    print();
+
+
+    let mut count = 0;
+    // A closure to increment `count` could take either `&mut count` or `count`
+    // but `&mut count` is less restrictive so it takes that. Immediately
+    // borrows `count`.
+    //
+    // A `mut` is required on `inc` because a `&mut` is stored inside. Thus,
+    // calling the closure mutates the closure which requires a `mut`.
+    let mut inc = || {
+        count += 1;
+        println!("`count`: {}", count);
+    };
+
+    // Call the closure using a mutable borrow.
+    inc();
+
+    // The closure still mutably borrows `count` because it is called later.
+    // An attempt to reborrow will lead to an error.
+    // let _reborrow = &count; 
+    // ^ TODO: try uncommenting this line.
+    inc();
+
+    // The closure no longer needs to borrow `&mut count`. Therefore, it is
+    // possible to reborrow without an error
+
+
+
+    // A non-copy type.
+    let movable = Box::new(3);
+
+    // `mem::drop` requires `T` so this must take by value. A copy type
+    // would copy into the closure leaving the original untouched.
+    // A non-copy must move and so `movable` immediately moves into
+    // the closure.
+    let consume = || {
+        println!("`movable`: {:?}", movable);
+        mem::drop(movable);
+    };
+
+    // `consume` consumes the variable so this can only be called once.
+    consume();
+}
+
+/* 
+print:
+`color`: green
+`color`: green
+`count`: 1
+`count`: 2
+`movable`: 3
+*/
+
+```
+
+Using `move` before vertical pipes forces closure to take ownership of captured variables:
+
+```rust
+fn main() {
+    // `Vec` has non-copy semantics.
+    let haystack = vec![1, 2, 3];
+
+    let contains = move |needle| haystack.contains(needle);
+
+    println!("{}", contains(&1));
+    println!("{}", contains(&4));
+
+    // println!("There're {} elements in vec", haystack.len());
+    // ^ Uncommenting above line will result in compile-time error
+    // because borrow checker doesn't allow re-using variable after it
+    // has been moved.
+    
+    // Removing `move` from closure's signature will cause closure
+    // to borrow _haystack_ variable immutably, hence _haystack_ is still
+    // available and uncommenting above line will not cause an error.
+}
+```
+
+#### 2.3.2. As input parameters
+
+While Rust chooses how to capture variables on the fly mostly without type annotation, this ambiguity is not allowed when writing functions. When taking a closure as an input parameter, the closure's complete type must be annotated using one of a few `traits`, and they're determined by what the closure does with captured value. In order of decreasing restriction, they are:
+
+- `Fn`: the closure uses the captured value by reference (&T)
+- `FnMut`: the closure uses the captured value by mutable reference (&mut T)
+- `FnOnce`: the closure uses the captured value by value (T)
+
+On a variable-by-variable basis, the compiler will capture variables in the least restrictive manner possible.
+
+For instance, consider a parameter annotated as `FnOnce`. This specifies that the closure may capture by `&T`, `&mut T`, or `T`, but the compiler will ultimately choose based on how the captured variables are used in the closure.
+
+This is because if a move is possible, then any type of borrow should also be possible. Note that the reverse is not true. If the parameter is annotated as `Fn`, then capturing variables by `&mut T` or `T` are not allowed.
+
+In the following example, try swapping the usage of Fn, FnMut, and FnOnce to see what happens:
+
+```rust
+// A function which takes a closure as an argument and calls it.
+// <F> denotes that F is a "Generic type parameter"
+fn apply<F>(f: F) where
+    // The closure takes no input and returns nothing.
+    F: FnOnce() {
+    // ^ TODO: Try changing this to `Fn` or `FnMut`.
+
+    f();
+}
+
+// A function which takes a closure and returns an `i32`.
+fn apply_to_3<F>(f: F) -> i32 where
+    // The closure takes an `i32` and returns an `i32`.
+    F: Fn(i32) -> i32 {
+
+    f(3)
+}
+
+fn main() {
+    use std::mem;
+
+    let greeting = "hello";
+    // A non-copy type.
+    // `to_owned` creates owned data from borrowed one
+    let mut farewell = "goodbye".to_owned();
+
+    // Capture 2 variables: `greeting` by reference and
+    // `farewell` by value.
+    let diary = || {
+        // `greeting` is by reference: requires `Fn`.
+        println!("I said {}.", greeting);
+
+        // Mutation forces `farewell` to be captured by
+        // mutable reference. Now requires `FnMut`.
+        farewell.push_str("!!!");
+        println!("Then I screamed {}.", farewell);
+        println!("Now I can sleep. zzzzz");
+
+        // Manually calling drop forces `farewell` to
+        // be captured by value. Now requires `FnOnce`.
+        mem::drop(farewell);
+    };
+
+    // Call the function which applies the closure.
+    apply(diary);
+
+    // `double` satisfies `apply_to_3`'s trait bound
+    let double = |x| 2 * x;
+
+    println!("3 doubled: {}", apply_to_3(double));
+}
+
+/* 
+if F:FnOnce, print: 
+I said hello.
+Then I screamed goodbye!!!.
+Now I can sleep. zzzzz
+3 doubled: 6
+
+if F:Fn, error: 
+mem::drop(farewell);
+   |                   -------- closure is `FnOnce` because it moves the variable `farewell` out of its environment
+
+if F:FnMut, error:
+error[E0525]: expected a closure that implements the `FnMut` trait, but this closure only implements `FnOnce`
+
+*/
+```
+
+#### 2.3.3. Type anonymity
+
+Closures succinctly capture variables from enclosing scopes. Does this have any consequences? It surely does. Observe how using a closure as a function parameter requires [generics](https://doc.rust-lang.org/rust-by-example/generics.html), which is necessary because of how they are defined:
+
+```rust
+// `F` must be generic.
+fn apply<F>(f: F) where
+    F: FnOnce() {
+    f();
+}
+```
+
+When a closure is defined, the compiler implicitly creates a new anonymous structure to store the captured variables inside, meanwhile implementing the functionality via one of the `traits`: `Fn`, `FnMut`, or `FnOnce` for this unknown type. This type is assigned to the variable which is stored until calling.
+
+Since this new type is of unknown type, any usage in a function will require generics. However, an unbounded type parameter `<T>` would still be ambiguous and not be allowed. Thus, bounding by one of the `traits`: `Fn`, `FnMut`, or `FnOnce` (which it implements) is sufficient to specify its type.
+
+```rust
+// `F` must implement `Fn` for a closure which takes no
+// inputs and returns nothing - exactly what is required
+// for `print`.
+fn apply<F>(f: F) where
+    F: Fn() {
+    f();
+}
+
+fn main() {
+    let x = 7;
+
+    // Capture `x` into an anonymous type and implement
+    // `Fn` for it. Store it in `print`.
+    let print = || println!("{}", x);
+
+    apply(print);
+}
+// print: 7
+```
+
+#### 2.3.4. Input functions
+Since closures may be used as arguments, you might wonder if the same can be said about functions. And indeed they can! If you declare a function that takes a closure as parameter, then any function that satisfies the trait bound of that closure can be passed as a parameter.
+```rust
+// Define a function which takes a generic `F` argument
+// bounded by `Fn`, and calls it
+fn call_me<F: Fn()>(f: F) {
+    f();
+}
+
+// Define a wrapper function satisfying the `Fn` bound
+fn function() {
+    println!("Hi, I'm a function!");
+}
+
+fn main() {
+    // Define a closure satisfying the `Fn` bound
+    let closure = || println!("I'm a closure!");
+
+    call_me(closure);
+    call_me(function);
+}
+//print:
+//I'm a closure!
+//Hi, I'm a function!
+```
+
+As an additional note, the `Fn`, `FnMut`, and `FnOnce` `traits` dictate how a closure captures variables from the enclosing scope.
+#### 2.3.5. As output parameters
+
+Closures as input parameters are possible, so returning closures as output parameters should also be possible. However, anonymous closure types are, by definition, unknown, so we have to use `impl` `Trait` to return them.
+
+The valid traits for returning a closure are:
+
+- `Fn`
+- `FnMut`
+- `FnOnce`
+
+Beyond this, the `move` keyword must be used, which signals that all captures occur by value. This is required because any captures by reference would be dropped as soon as the function exited, leaving invalid references in the closure.
+
+```rust
+fn create_fn() -> impl Fn() {
+    let text = "Fn".to_owned();
+
+    move || println!("This is a: {}", text)
+}
+
+fn create_fnmut() -> impl FnMut() {
+    let text = "FnMut".to_owned();
+
+    move || println!("This is a: {}", text)
+}
+
+fn create_fnonce() -> impl FnOnce() {
+    let text = "FnOnce".to_owned();
+
+    move || println!("This is a: {}", text)
+}
+
+fn main() {
+    let fn_plain = create_fn();
+    let mut fn_mut = create_fnmut();
+    let fn_once = create_fnonce();
+
+    fn_plain();
+    fn_mut();
+    fn_once();
+}
+/* 
+print:
+This is a: Fn
+This is a: FnMut
+This is a: FnOnce
+*/
+```
+#### 2.3.6. Examples in std
+This section contains a few examples of using closures from the `std` library.
+##### 2.3.6.1. Iterator::any
+`Iterator::any` is a function which when passed an iterator, will return `true` if any element satisfies the predicate. Otherwise `false`. Its signature:
+
+```rust
+pub trait Iterator {
+    // The type being iterated over.
+    type Item;
+
+    // `any` takes `&mut self` meaning the caller may be borrowed
+    // and modified, but not consumed.
+    fn any<F>(&mut self, f: F) -> bool where
+        // `FnMut` meaning any captured variable may at most be
+        // modified, not consumed. `Self::Item` states it takes
+        // arguments to the closure by value.
+        F: FnMut(Self::Item) -> bool {}
+}
+```
+
+```rust
+fn main() {
+    let vec1 = vec![1, 2, 3];
+    let vec2 = vec![4, 5, 6];
+
+    // `iter()` for vecs yields `&i32`. Destructure to `i32`.
+    println!("2 in vec1: {}", vec1.iter()     .any(|&x| x == 2));
+    // `into_iter()` for vecs yields `i32`. No destructuring required.
+    println!("2 in vec2: {}", vec2.into_iter().any(| x| x == 2));
+
+    let array1 = [1, 2, 3];
+    let array2 = [4, 5, 6];
+
+    // `iter()` for arrays yields `&i32`.
+    println!("2 in array1: {}", array1.iter()     .any(|&x| x == 2));
+    // `into_iter()` for arrays unusually yields `&i32`.
+    println!("2 in array2: {}", array2.iter().any(|&x| x == 2));
+}
+
+/* print
+2 in vec1: true
+2 in vec2: false
+2 in array1: true
+2 in array2: false
+ */
+```
+##### 2.3.6.2. Searching through iterators
+
+
+### 2.4. Higher Order Functions
+
+### 2.5. Diverging functions
+
+
+## 3. 
