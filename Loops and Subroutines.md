@@ -26,10 +26,10 @@
    - [2.4. Higher Order Functions](#24-higher-order-functions)
    - [2.5. Diverging functions](#25-diverging-functions)
    - [2.6. Generic Functions](#26-generic-functions)
-   - [2.7. Recursion Functions](#2-recursion-function)
-   - [2.8. Multiple Parameters]()
-- [4. Return]() 
-- [5. Pass by]() 
+   - [2.7. Recursion Functions](#27-recursion-functions)
+   - [2.8. Multiple Parameters](#28-multiple-parameters)
+- [3. Return](#3-return) 
+- [4. Pass by value]() 
 - [Reference]
 
 ## 1. Loop
@@ -1076,6 +1076,125 @@ And if the number of items ought to be dynamic:
 fn test(a: &[u8]) {}
 ```
 
+## 3. Return 
+A `return` marks the end of an execution path in a function:
+
+```rust
+fn foo() -> i32 {
+    return 3;
+}
+assert_eq!(foo(), 3);
+```
+
+`return` is not needed when the returned value is the last expression in the function. In this case the `;` is omitted:
+
+```rust
+fn foo() -> i32 {
+    3
+}
+assert_eq!(foo(), 3);
+```
+
+`return` returns from the function immediately (an “early return”):
+
+```rust
+use std::fs::File;
+use std::io::{Error, ErrorKind, Read, Result};
+
+fn main() -> Result<()> {
+    let mut file = match File::open("foo.txt") {
+        Ok(f) => f,
+        Err(e) => return Err(e),
+    };
+
+    let mut contents = String::new();
+    let size = match file.read_to_string(&mut contents) {
+        Ok(s) => s,
+        Err(e) => return Err(e),
+    };
+
+    if contents.contains("impossible!") {
+        return Err(Error::new(ErrorKind::Other, "oh no!"));
+    }
+
+    if size > 9000 {
+        return Err(Error::new(ErrorKind::Other, "over 9000!"));
+    }
+
+    assert_eq!(contents, "Hello, world!");
+    Ok(())
+}
+```
+
+## 4. Pass by value
+ > **Rust is strictly a pass-by-value language.**
+
+Example:
+
+```rust
+fn main() {
+  let n_main: usize = 100;
+  println!("{}", inc(n_main));
+}
+
+fn inc(n_inc: usize) -> usize {
+  n_inc + 1
+}
+```
+In the above example, `n_main` is a number allocated on the stack of the `main` function. When we pass `n_main` to the `inc` function it is copied to the stack of the `inc` function.`n_main` and `n_inc` are two separate values at two places in memory.
+
+```rust
+fn main() {
+  let n_main: usize = 100;
+  let n_main_ref: &usize = &n_main;
+  println!("{}", inc_ref(n_main_ref));
+}
+
+fn inc_ref(n_inc_ref: &usize) -> usize {
+  n_inc_ref + 1
+}
+```
+
+In this example, the function `inc_ref` works the same way as `inc` did before just now with the value being a reference instead of a number of type `usize`. When we pass `n_main_ref` to `inc_ref`, the reference value `n_main_ref` (not the value that it’s pointing to) is copied to the stack of `inc_ref`. The reference is a value and it behaves with pass-by-value semantics just like the value of type `usize` did.
+
+Let’s take a look at another example to drive the case home:
+
+```rust
+fn main() {
+  let array_main: [Vec<u8>; 3] = [vec![1], vec![2, 4], vec![]];
+  print(array_main);
+}
+
+fn print(array: [Vec<u8>; 3]) {
+  for e in array.iter() {
+    println!("{:?}", e)
+  }
+}
+```
+
+This example is the exact same as the above examples except the underlying value we’re looking at is a fixed length array with elements that are `Vec`s. In the case of the `print` function, the array will be copied from the stack of the main function to the stack of the `print` function. This means that each of the three elements (the `Vec`s) will be copied to the new stack frame.
+
+It’s important to be clear what “copying” means here. While logically we might think of a `Vec` as a growable array on the heap, in reality is is just a struct that contains three values: a length, a capacity and a pointer to the actual data on the heap. When we say the `Vec` is copied - we mean this struct is copied. The data on the heap, however, is not copied.
+
+Now if Rust didn’t have the borrow checker this could present a problem. Why? Copying one of the `Vec`s would lead to two pointers (a.k.a. aliased pointers) to the same data on the heap. If we then “dropped” (a.k.a freed, a.k.a. deallocated, a.k.a. destroyed) one of the `Vec`s (and in turn free the heap allocated memory), the pointer in other `Vec` would now point to junk data. Luckily, the borrow checker makes it impossible to use `array_main` after it’s been “moved” to the print function.
+
+Ok, now let’s look again at passing a reference by value:
+
+```rust
+fn main() {
+  let array_main: [Vec<u8>; 3] = [vec![1], vec![2, 4], vec![]];
+  let array_main_ref: &[Vec<u8>] = &array_main;
+  print(array_main_ref);
+}
+
+fn print(array_ref: &[Vec<u8>]) {
+  for e in array.iter() {
+    println!("{:?}", e)
+  }
+}
+```
+
+This example again is pass-by-value semantics. The value in question is the reference to our stack allocated array. The reference `array_main_ref` will be copied from `main`’s stack to the stack of the print function, but of course, the array itself will not be copied and will stay on the stack of the `main` function.
 
 ## Reference
 - https://doc.rust-lang.org/rust-by-example/flow_control/loop.html
@@ -1083,3 +1202,4 @@ fn test(a: &[u8]) {}
 - https://mockstacks.com/Rust_Recursive_Function
 - https://stackoverflow.com/questions/47893783/how-to-give-multiple-function-parameters-the-same-type
 - https://riptutorial.com/rust/example/5882/multiple-type-parameters
+- https://blog.ryanlevick.com/rust-pass-value-or-reference
