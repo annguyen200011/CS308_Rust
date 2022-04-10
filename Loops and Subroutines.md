@@ -15,20 +15,22 @@
    - [2.1. Syntax](#21-syntax)
    - [2.2. Methods](#22-methods)
    - [2.3. Closures](#23-closures)
-     - [2.3.1. Capturing]()
-     - [2.3.2. As input parameters]()
-     - [2.3.3. Type anonymity]()
-     - [2.3.4. Input functions]()
-     - [2.3.5. As output parameters]()
-     - [2.3.6. Examples in std]()
-       - 2.3.6.1. Iterator::any
-       - 2.3.6.2. Searching through iterators
-   - [2.4. Higher Order Functions]()
-   - [2.5. Diverging functions]()
-- [3. Recursion]()
-- [4. Multiple Parameters]()
-- [5. Return]() 
-- [6. Pass by]() 
+     - [2.3.1. Capturing](#231-capturing)
+     - [2.3.2. As input parameters](#232-as-input-parameters)
+     - [2.3.3. Type anonymity](#233-type-anonymity)
+     - [2.3.4. Input functions](#234-input-functions)
+     - [2.3.5. As output parameters](#235-as-output-parameters)
+     - [2.3.6. Examples in std](#236-examples-in-std)
+       - [2.3.6.1. Iterator::any](#2361-iteratorany)
+       - [2.3.6.2. Searching through iterators](#2362-searching-through-iterators)
+   - [2.4. Higher Order Functions](#24-higher-order-functions)
+   - [2.5. Diverging functions](#25-diverging-functions)
+   - [2.6. Generic Functions](#26-generic-functions)
+   - [2.7. Recursion Functions](#2-recursion-function)
+   - [2.8. Multiple Parameters]()
+- [4. Return]() 
+- [5. Pass by]() 
+- [Reference]
 
 ## 1. Loop
 
@@ -825,10 +827,259 @@ fn main() {
 ```
 ##### 2.3.6.2. Searching through iterators
 
+`Iterator::find` is a function which iterates over an iterator and searches for the first value which satisfies some condition. If none of the values satisfy the condition, it returns `None`. Its signature:
 
+```rust
+pub trait Iterator {
+    // The type being iterated over.
+    type Item;
+
+    // `find` takes `&mut self` meaning the caller may be borrowed
+    // and modified, but not consumed.
+    fn find<P>(&mut self, predicate: P) -> Option<Self::Item> where
+        // `FnMut` meaning any captured variable may at most be
+        // modified, not consumed. `&Self::Item` states it takes
+        // arguments to the closure by reference.
+        P: FnMut(&Self::Item) -> bool {}
+}
+```
+
+```rust
+fn main() {
+    let vec1 = vec![1, 2, 3];
+    let vec2 = vec![4, 5, 6];
+
+    // `iter()` for vecs yields `&i32`.
+    let mut iter = vec1.iter();
+    // `into_iter()` for vecs yields `i32`.
+    let mut into_iter = vec2.into_iter();
+
+    // `iter()` for vecs yields `&i32`, and we want to reference one of its
+    // items, so we have to destructure `&&i32` to `i32`
+    println!("Find 2 in vec1: {:?}", iter     .find(|&&x| x == 2));
+    // `into_iter()` for vecs yields `i32`, and we want to reference one of
+    // its items, so we have to destructure `&i32` to `i32`
+    println!("Find 2 in vec2: {:?}", into_iter.find(| &x| x == 2));
+
+    let array1 = [1, 2, 3];
+    let array2 = [4, 5, 6];
+
+    // `iter()` for arrays yields `&i32`
+    println!("Find 2 in array1: {:?}", array1.iter()     .find(|&&x| x == 2));
+    // `into_iter()` for arrays yields `i32`
+    println!("Find 2 in array2: {:?}", array2.into_iter().find(|&x| x == 2));
+}
+/*
+print:
+Find 2 in vec1: Some(2)
+Find 2 in vec2: None
+Find 2 in array1: Some(2)
+Find 2 in array2: None
+*/
+```
+
+`Iterator::find` gives you a reference to the item. But if you want the _index_ of the item, use `Iterator::position`.
+
+```rust
+fn main() {
+    let vec = vec![1, 9, 3, 3, 13, 2];
+
+    let index_of_first_even_number = vec.iter().position(|x| x % 2 == 0);
+    assert_eq!(index_of_first_even_number, Some(5));
+    
+    
+    let index_of_first_negative_number = vec.iter().position(|x| x < &0);
+    assert_eq!(index_of_first_negative_number, None);
+}
+```
 ### 2.4. Higher Order Functions
+
+Rust provides Higher Order Functions (HOF). These are functions that take one or more functions and/or produce a more useful function. HOFs and lazy iterators give Rust its functional flavor.
+
+```rust
+fn is_odd(n: u32) -> bool {
+    n % 2 == 1
+}
+
+fn main() {
+    println!("Find the sum of all the squared odd numbers under 1000");
+    let upper = 1000;
+
+    // Imperative approach
+    // Declare accumulator variable
+    let mut acc = 0;
+    // Iterate: 0, 1, 2, ... to infinity
+    for n in 0.. {
+        // Square the number
+        let n_squared = n * n;
+
+        if n_squared >= upper {
+            // Break loop if exceeded the upper limit
+            break;
+        } else if is_odd(n_squared) {
+            // Accumulate value, if it's odd
+            acc += n_squared;
+        }
+    }
+    println!("imperative style: {}", acc);
+
+    // Functional approach
+    let sum_of_squared_odd_numbers: u32 =
+        (0..).map(|n| n * n)                             // All natural numbers squared
+             .take_while(|&n_squared| n_squared < upper) // Below upper limit
+             .filter(|&n_squared| is_odd(n_squared))     // That are odd
+             .fold(0, |acc, n_squared| acc + n_squared); // Sum them
+    println!("functional style: {}", sum_of_squared_odd_numbers);
+}
+/*
+print:
+Find the sum of all the squared odd numbers under 1000
+imperative style: 5456
+functional style: 5456
+ */
+```
 
 ### 2.5. Diverging functions
 
+Diverging functions never return. They are marked using `!`, which is an empty type.
 
-## 3. 
+```rust
+fn foo() -> ! {
+    panic!("This call never returns.");
+}
+```
+As opposed to all the other types, this one cannot be instantiated, because the set of all possible values this type can have is empty. Note that, it is different from the `()` type, which has exactly one possible value.
+
+For example, this function returns as usual, although there is no information in the return value.
+
+```rust
+fn some_fn() {
+    ()
+}
+
+fn main() {
+    let a: () = some_fn();
+    println!("This function returns and you can see this line.")
+}
+```
+
+As opposed to this function, which will never return the control back to the caller.
+
+```rust
+fn main() {
+    let x: ! = panic!("This call never returns.");
+    println!("You will never see this line!");
+}
+```
+
+Although this might seem like an abstract concept, it is in fact very useful and often handy. The main advantage of this type is that it can be cast to any other one and therefore used at places where an exact type is required, for instance in match branches. This allows us to write code like this:
+
+```rust
+fn main() {
+    fn sum_odd_numbers(up_to: u32) -> u32 {
+        let mut acc = 0;
+        for i in 0..up_to {
+            // Notice that the return type of this match expression must be u32
+            // because of the type of the "addition" variable.
+            let addition: u32 = match i%2 == 1 {
+                // The "i" variable is of type u32, which is perfectly fine.
+                true => i,
+                // On the other hand, the "continue" expression does not return
+                // u32, but it is still fine, because it never returns and therefore
+                // does not violate the type requirements of the match expression.
+                false => continue,
+            };
+            acc += addition;
+        }
+        acc
+    }
+    println!("Sum of odd numbers up to 9 (excluding): {}", sum_odd_numbers(9));
+}
+```
+
+It is also the return type of functions that loop forever (e.g. `loop {}`) like network servers or functions that terminate the process (e.g. `exit()`).
+
+### 2.6. Generic Functions
+
+A generic function allows one or more parameterized types to appear in its signature. Each type parameter must be explicitly declared in an angle-bracket-enclosed and comma-separated list, following the function name.
+
+```rust
+// foo is generic over A and B
+
+fn foo<A, B>(x: A, y: B) {
+```
+
+Inside the function signature and body, the name of the type parameter can be used as a type name. [Trait](https://doc.rust-lang.org/reference/items/traits.html) bounds can be specified for type parameters to allow methods with that trait to be called on values of that type. This is specified using the `where` syntax:
+
+```rust
+fn foo<T>(x: T) where T: Debug {
+```
+
+When a generic function is referenced, its type is instantiated based on the context of the reference. For example, calling the foo function here:
+
+```rust
+use std::fmt::Debug;
+
+fn foo<T>(x: &[T]) where T: Debug {
+    // details elided
+}
+
+foo(&[1, 2]);
+```
+
+will instantiate type parameter `T` with `i32`.
+
+The type parameters can also be explicitly supplied in a trailing path component after the function name. This might be necessary if there is not sufficient context to determine the type parameters. For example, `mem::size_of::<u32>() == 4`.
+
+### 2.7. Recursion Functions
+The final form of loop to consider is known as a recursive function. This is a function that calls itself until a condition is met.
+
+```rust
+fn factorial(num: u64) -> u64 {
+    match num {
+        0 | 1 => 1,
+        _ => factorial(num - 1) * num,
+    }
+}
+
+fn main() {
+    println!("{}", factorial(10)); //print: 3628800
+}
+```
+
+### 2.8. Multiple Parameters
+Generics types can have more than one type parameters, eg. Result is defined like this:
+
+```rust
+pub enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+```
+
+or simply
+```rust
+fn test(a: u8, b: u8, c: u8) {}
+```
+
+There is no short-cut syntax available if you want to name each individually.
+
+If you do not care for individual names:
+
+```rust
+fn test(a: &[u8; 3]) {}
+```
+
+And if the number of items ought to be dynamic:
+
+```rust
+fn test(a: &[u8]) {}
+```
+
+
+## Reference
+- https://doc.rust-lang.org/rust-by-example/flow_control/loop.html
+- https://doc.rust-lang.org/rust-by-example/fn.html
+- https://mockstacks.com/Rust_Recursive_Function
+- https://stackoverflow.com/questions/47893783/how-to-give-multiple-function-parameters-the-same-type
+- https://riptutorial.com/rust/example/5882/multiple-type-parameters
