@@ -29,8 +29,8 @@
    - [2.7. Recursion Functions](#27-recursion-functions)
    - [2.8. Multiple Parameters](#28-multiple-parameters)
 - [3. Return](#3-return) 
-- [4. Pass by value]() 
-- [Reference]
+- [4. Pass by value](#4-pass-by-value) 
+- [Reference](#reference)
 
 ## 1. Loop
 
