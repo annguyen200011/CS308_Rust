@@ -67,6 +67,10 @@ Rust has been adopted by major software engineering companies. Rust is used for:
 - Blog: [educative.io](https://www.educative.io/blog/rust-tutorial-from-scratch)
 - Youtube: [dcode](https://www.youtube.com/watch?v=vOMJlQ5B-M0&list=PLVvjrrRCBy2JSHf9tGxGKJ-bYAN_uDCUL), [Traversy Media](https://www.youtube.com/watch?v=zF34dRivLOw), [Blockchain cùng Vũ](https://www.youtube.com/watch?v=k9dM0SiX9iU&list=PLFnEYduGTiXE2ejxmzTIraP2feI-pmeuw), [Jon Gjenset](https://www.youtube.com/channel/UC_iD0xppBwwsrM9DegC5cQQ), 
 
+### Next reading
+1. [Names, Types and Binding](https://github.com/annguyen200011/CS308_Rust/blob/main/Names%2C%20Types%20and%20Binding.md#names-types-and-binding)
+2. [Selection Control Structures](https://github.com/annguyen200011/CS308_Rust/blob/main/Selection%20Control%20Structures.md)
+3. [Loops and Subroutines](https://github.com/annguyen200011/CS308_Rust/blob/main/Loops%20and%20Subroutines.md)
 
 ## Setup
 
