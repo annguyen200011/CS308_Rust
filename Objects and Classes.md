@@ -117,6 +117,10 @@ Rust instead uses generics to abstract over different possible types and trait b
 
 To be able to explain thoroughly and well what these are, I'd have to first explain a few other topics more specific about Rust's syntax and way of doing things, so for now, know that it's possible to have some form of polymorphism in Rust, just not the way classical OOP languages do it.
 
+**Overloading:** Rust does not support traditional overloading where the same method is defined with multiple signatures. But traits provide much of the benefit of overloading: if a method is defined generically over a trait, it can be called with any type implementing that trait. Compared to traditional overloading, this has two advantages. 
+- First, it means the overloading is less ad hoc: once you understand a trait, you immediately understand the overloading pattern of any APIs using it. 
+- Second, it is extensible: you can effectively provide new overloads downstream from a method by providing new trait implementations.
+
 ## 2. The Rust Standard Library
 The Rust Standard Library is the foundation of portable Rust software, a set of minimal and battle-tested shared abstractions for the broader Rust ecosystem
 
@@ -203,6 +207,6 @@ And finally, the standard library exports a number of standard macros (technical
 1. https://iq.opengenus.org/oop-in-rust/
 2. https://doc.rust-lang.org/book/ch17-00-oop.html
 3. https://docs.w3cub.com/rust/std/index
-4. 
+4. https://stackoverflow.com/questions/42236166/is-it-possible-to-overload-a-function-with-different-numbers-of-arguments-using
 
 
