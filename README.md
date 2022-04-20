@@ -71,6 +71,7 @@ Rust has been adopted by major software engineering companies. Rust is used for:
 1. [Names, Types and Binding](https://github.com/annguyen200011/CS308_Rust/blob/main/Names%2C%20Types%20and%20Binding.md#names-types-and-binding)
 2. [Selection Control Structures](https://github.com/annguyen200011/CS308_Rust/blob/main/Selection%20Control%20Structures.md)
 3. [Loops and Subroutines](https://github.com/annguyen200011/CS308_Rust/blob/main/Loops%20and%20Subroutines.md)
+4. [Objects and Classes](https://github.com/annguyen200011/CS308_Rust/blob/main/Objects%20and%20Classes.md)
 
 ## Setup
 
