@@ -199,8 +199,6 @@ And finally, the standard library exports a number of standard macros (technical
 | include_bytes   | Includes a file as a reference to a byte array.                                   |
 | include_str     | Includes a UTF-8 encoded file as a string.                                        |
 
-## 3. Inheritance
-
 ## Reference
 1. https://iq.opengenus.org/oop-in-rust/
 2. https://doc.rust-lang.org/book/ch17-00-oop.html
