@@ -15,7 +15,6 @@
   - [4.1. Packages and Crates](#41-packages-and-crates)
   - [4.2. Module](#42-module)
   - [4.3. Path](#43-path)
-  - [4.4. Separating Modules into Different Files](#)
 - [Reference](#reference)
 
 
@@ -656,9 +655,6 @@ fn function2() -> IoResult<()> {
   // --snip--
 }
 ```
-
-### 4.4. Separating Modules into Different Files
-
 
 
 ## Reference
